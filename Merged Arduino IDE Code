@@ -1,0 +1,27 @@
+#include <Adafruit_Fingerprint.h>
+#include <RFID.h>
+
+// Define pins and instances for fingerprint and RFID
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
+RFID rfid(10, 9);  // Pins for the RFID reader
+
+void setup() {
+  Serial.begin(9600);
+  finger.begin(57600);
+  rfid.begin();
+}
+
+void loop() {
+  // Check for fingerprint
+  getFingerprintID();
+  
+  // Check for RFID
+  if (rfid.isCard()) {
+    Serial.println("RFID detected");
+    // Read RFID and process
+  }
+}
+
+int getFingerprintID() {
+  // Function to read fingerprint
+}
