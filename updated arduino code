@@ -1,0 +1,53 @@
+#include <Adafruit_Fingerprint.h>
+#include <RFID.h>
+
+// Define pins and instances for fingerprint and RFID
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
+RFID rfid(10, 9);  // Pins for the RFID reader
+
+void setup() {
+  Serial.begin(9600);
+  finger.begin(57600);
+  rfid.begin();
+}
+
+void loop() {
+  // Check for fingerprint
+  int fingerprintID = getFingerprintID();
+  if (fingerprintID != -1) {
+    Serial.print("Fingerprint ID detected: ");
+    Serial.println(fingerprintID);
+  }
+
+  // Check for RFID
+  if (rfid.isCard()) {
+    Serial.println("RFID detected");
+    // Read RFID and process
+    rfid.readCardSerial();
+    Serial.print("RFID Tag ID: ");
+    for (int i = 0; i < 5; i++) {
+      Serial.print(rfid.serNum[i], HEX);
+    }
+    Serial.println();
+  }
+}
+
+int getFingerprintID() {
+  // Function to read fingerprint
+  uint8_t p = finger.getImage();
+  if (p != FINGERPRINT_OK) {
+    return -1; // No valid fingerprint found
+  }
+
+  p = finger.image2Tz();
+  if (p != FINGERPRINT_OK) {
+    return -1; // Error converting image
+  }
+
+  p = finger.fingerFastSearch();
+  if (p != FINGERPRINT_OK) {
+    return -1; // Fingerprint not found in the database
+  }
+
+  return finger.fingerID; // Return the ID of the fingerprint
+}
